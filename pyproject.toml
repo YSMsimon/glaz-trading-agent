@@ -13,4 +13,4 @@ dependencies = [
 ]
 
 [tool.uv]
-dev-dependencies = ["ruff>=0.6"]
+dev-dependencies = ["ruff>=0.6", "pytest>=8.0"]
