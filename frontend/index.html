@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glaz Manual Desk</title>
+<style>
+ :root{--bg:#0b0f17;--panel:#141a24;--line:#232c3a;--ink:#e6ebf2;--mut:#8a95a8;
+   --red:#e5484d;--grn:#30a46c;--gold:#e8b93f;--acc:#4c7dff}
+ *{box-sizing:border-box;margin:0;padding:0}
+ body{background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;padding:20px}
+ h1{font-size:18px;letter-spacing:.02em;margin-bottom:2px}
+ h1 b{color:var(--gold)}
+ .sub{color:var(--mut);font-size:12px;margin-bottom:18px}
+ .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+ @media(max-width:820px){.grid{grid-template-columns:1fr}}
+ .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+ .card h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+ .kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line)}
+ .kv:last-child{border:0}.kv .v{font-variant-numeric:tabular-nums;font-weight:600}
+ .pos{color:var(--grn)}.neg{color:var(--red)}
+ table{width:100%;border-collapse:collapse;font-size:13px}
+ th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}
+ th:first-child,td:first-child{text-align:left}
+ th{color:var(--mut);font-weight:500;font-size:11px}
+ tbody tr{cursor:pointer}tbody tr:hover{background:#1b2330}
+ tr.sel{background:#20304d}
+ input,select,button{font:inherit;color:var(--ink);background:#0e141d;border:1px solid var(--line);
+   border-radius:7px;padding:8px 10px}
+ button{cursor:pointer;background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+ button.sell{background:var(--red);border-color:var(--red)}
+ button.ghost{background:transparent;color:var(--ink)}
+ .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+ .row label{font-size:11px;color:var(--mut);width:100%}
+ .ticket input,.ticket select{width:100%}
+ .ticket>div{flex:1;min-width:80px}
+ #msg{margin-top:10px;font-size:12px;min-height:18px}
+ .tag{display:inline-block;padding:1px 7px;border-radius:4px;background:#1b2330;color:var(--mut);font-size:11px}
+ .full{grid-column:1/-1}
+ .paper{color:var(--gold);border:1px solid var(--gold);padding:1px 6px;border-radius:4px;font-size:10px}
+</style></head><body>
+<h1>Glaz <b>Manual Desk</b> <span class="paper">PAPER</span></h1>
+<div class="sub">Human-driven options trading on Alpaca. No agent. Keys stay server-side.</div>
+
+<div class="grid">
+  <div class="card"><h2>Account</h2><div id="acct">loading…</div></div>
+  <div class="card"><h2>Positions</h2><div id="pos">loading…</div></div>
+
+  <div class="card full"><h2>Option Chain</h2>
+    <div class="row">
+      <div style="flex:2"><label>Underlying</label>
+        <input id="sym" value="MSTR" placeholder="MSTR"></div>
+      <div><label>Type</label>
+        <select id="kind"><option value="call">Calls</option><option value="put">Puts</option></select></div>
+      <div style="align-self:end"><button class="ghost" onclick="loadChain()">Load chain</button></div>
+      <div style="align-self:end"><span class="tag">crypto-proxy: MSTR COIN CRCL MARA RIOT IBIT</span></div>
+    </div>
+    <div id="chain" style="max-height:320px;overflow:auto"></div>
+  </div>
+
+  <div class="card full ticket"><h2>Order Ticket</h2>
+    <div class="row">
+      <div style="flex:2"><label>Contract (pick from chain)</label><input id="oc" placeholder="click a chain row"></div>
+      <div><label>Side</label><select id="side"><option>buy</option><option>sell</option></select></div>
+      <div><label>Qty (contracts)</label><input id="qty" type="number" value="1" min="1"></div>
+      <div><label>Type</label><select id="otype" onchange="toggleLimit()">
+        <option value="market">market</option><option value="limit">limit</option></select></div>
+      <div id="lpwrap" style="display:none"><label>Limit $</label><input id="lp" type="number" step="0.01"></div>
+      <div style="align-self:end"><button id="submit" onclick="submitOrder()">Place order</button></div>
+    </div>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const money=n=>(n<0?"-$":"$")+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:2});
+const cls=n=>n>0?"pos":n<0?"neg":"";
+
+async function j(u,o){const r=await fetch(u,o);if(!r.ok&&!o)throw new Error(await r.text());return r.json();}
+
+async function loadAccount(){
+  try{const a=await j('/api/account');
+    $('#acct').innerHTML=`
+      <div class="kv"><span>Account</span><span class="v">${a.id}</span></div>
+      <div class="kv"><span>Equity</span><span class="v">${money(a.equity)}</span></div>
+      <div class="kv"><span>Daily P&L</span><span class="v ${cls(a.daily_pl)}">${money(a.daily_pl)}</span></div>
+      <div class="kv"><span>Cash</span><span class="v">${money(a.cash)}</span></div>
+      <div class="kv"><span>Options level</span><span class="v">${a.options_level ?? '—'}</span></div>`;
+  }catch(e){$('#acct').innerHTML=`<span class="neg">${e.message}</span>`;}
+}
+async function loadPositions(){
+  try{const p=await j('/api/positions');
+    if(!p.length){$('#pos').innerHTML='<span style="color:var(--mut)">No open positions.</span>';return;}
+    $('#pos').innerHTML=`<table><thead><tr><th>Symbol</th><th>Qty</th><th>Value</th><th>P&L</th></tr></thead>
+      <tbody>${p.map(r=>`<tr><td>${r.symbol}</td><td>${r.qty}</td><td>${money(r.market_value)}</td>
+      <td class="${cls(r.unrealized_pl)}">${money(r.unrealized_pl)}</td></tr>`).join('')}</tbody></table>`;
+  }catch(e){$('#pos').innerHTML=`<span class="neg">${e.message}</span>`;}
+}
+async function loadChain(){
+  const sym=$('#sym').value.trim().toUpperCase(),kind=$('#kind').value;
+  $('#chain').innerHTML='loading…';
+  try{const rows=await j(`/api/chain?symbol=${sym}&kind=${kind}`);
+    if(!rows.length){$('#chain').innerHTML='<span style="color:var(--mut)">No contracts in the 7–45 DTE window.</span>';return;}
+    $('#chain').innerHTML=`<table><thead><tr><th>Contract</th><th>Strike</th><th>Expiry</th><th>OI</th><th>Last</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr onclick="pick(this,'${r.symbol}')">
+        <td>${r.symbol}</td><td>${r.strike}</td><td>${r.expiry}</td>
+        <td>${r.oi ?? '—'}</td><td>${r.close!=null?money(r.close):'—'}</td></tr>`).join('')}</tbody></table>`;
+  }catch(e){$('#chain').innerHTML=`<span class="neg">${e.message}</span>`;}
+}
+function pick(tr,sym){document.querySelectorAll('#chain tr').forEach(t=>t.classList.remove('sel'));
+  tr.classList.add('sel');$('#oc').value=sym;}
+function toggleLimit(){$('#lpwrap').style.display=$('#otype').value==='limit'?'block':'none';}
+async function submitOrder(){
+  const body={symbol:$('#oc').value.trim(),side:$('#side').value,qty:+$('#qty').value,
+    type:$('#otype').value,limit_price:$('#lp').value?+$('#lp').value:null};
+  if(!body.symbol){$('#msg').innerHTML='<span class="neg">Pick a contract from the chain first.</span>';return;}
+  $('#submit').disabled=true;$('#msg').textContent='placing…';
+  const r=await j('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  $('#submit').disabled=false;
+  $('#msg').innerHTML=r.ok
+    ? `<span class="pos">✓ ${r.side} ${r.qty} ${r.symbol} — ${r.status} (id ${r.order_id.slice(0,8)})</span>`
+    : `<span class="neg">✗ ${r.error}</span>`;
+  loadAccount();loadPositions();
+}
+loadAccount();loadPositions();
+setInterval(()=>{loadAccount();loadPositions();},15000);
+</script></body></html>
