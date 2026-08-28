@@ -21,7 +21,8 @@ from alpaca.trading.enums import (
     QueryOrderStatus, OrderClass,
 )
 from alpaca.data.historical.option import OptionHistoricalDataClient
-from alpaca.data.requests import OptionChainRequest
+from alpaca.data.historical.stock import StockHistoricalDataClient
+from alpaca.data.requests import OptionChainRequest, StockSnapshotRequest
 from agent.config import require_alpaca, PAPER
 from agent import risk
 
@@ -30,6 +31,7 @@ app = FastAPI(title="Glaz Manual Desk")
 def _k(): return require_alpaca()
 def trading(): k, s = _k(); return TradingClient(k, s, paper=PAPER)
 def opt_data(): k, s = _k(); return OptionHistoricalDataClient(k, s)
+def stock_data(): k, s = _k(); return StockHistoricalDataClient(k, s)
 
 # OCC symbol decode: MSTR260918C00133000 -> MSTR 2026-09-18 C 133
 _OCC = re.compile(r"^([A-Z]+)(\d{2})(\d{2})(\d{2})([CP])(\d{8})$")
@@ -133,6 +135,46 @@ def activities():
                     "price": float(o.filled_avg_price) if o.filled_avg_price else None,
                     "value": (float(o.filled_avg_price) * float(o.filled_qty) * (100 if _OCC.match(sym) else 1)) if o.filled_avg_price else None,
                     "date": str(o.filled_at or o.submitted_at or "")[:19]})
+    return out
+
+
+# ---------------- watchlist: crypto-related equities & ETFs ----------------
+
+CRYPTO_UNIVERSE = {
+    "Proxy / Treasury": ["MSTR", "BMNR", "SBET"],
+    "Exchanges / Brokers": ["COIN", "HOOD", "GLXY", "CRCL"],
+    "Miners / Data-center": ["MARA", "RIOT", "CLSK", "CIFR", "WULF", "IREN",
+                              "CORZ", "HUT", "BITF", "BTDR", "APLD", "HIVE"],
+    "ETFs": ["IBIT", "FBTC", "BITO", "GBTC", "BITX"],
+}
+_ALL_SYMS = [s for g in CRYPTO_UNIVERSE.values() for s in g]
+
+@app.get("/api/universe")
+def universe():
+    return CRYPTO_UNIVERSE
+
+@app.get("/api/watchlist")
+def watchlist(symbols: str = ""):
+    syms = [x.strip().upper() for x in symbols.split(",") if x.strip()] or _ALL_SYMS
+    try:
+        snaps = stock_data().get_stock_snapshot(StockSnapshotRequest(symbol_or_symbols=syms))
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+    out = []
+    for sym in syms:
+        s = snaps.get(sym)
+        if not s:
+            out.append({"symbol": sym, "price": None, "change": None, "changepct": None}); continue
+        lt = getattr(s, "latest_trade", None)
+        db = getattr(s, "daily_bar", None)
+        pdb = getattr(s, "previous_daily_bar", None)
+        price = float(lt.price) if lt and lt.price else (float(db.close) if db else None)
+        prev = float(pdb.close) if pdb and pdb.close else None
+        chg = (price - prev) if (price is not None and prev) else None
+        pct = (chg / prev * 100) if (chg is not None and prev) else None
+        out.append({"symbol": sym, "price": round(price, 2) if price else None,
+                    "change": round(chg, 2) if chg is not None else None,
+                    "changepct": round(pct, 2) if pct is not None else None})
     return out
 
 # ---------------- option information: chain search ----------------

@@ -37,12 +37,22 @@
  .chip{background:#1b2330;padding:2px 7px;border-radius:5px;font-size:11px}
  .warn{color:var(--gold);font-size:11px;margin-top:3px}.tabs button{margin-left:4px}
  .side-buy{color:var(--grn)}.side-sell{color:var(--red)}
+ .wgroup{margin-bottom:8px}.wglabel{font-size:10px;color:var(--mut);letter-spacing:.1em;margin:6px 0 4px}
+ .wrow{display:flex;flex-wrap:wrap;gap:6px}
+ .wtile{background:#0d1420;border:1px solid var(--line);border-radius:7px;padding:6px 9px;cursor:pointer;min-width:92px}
+ .wtile:hover{border-color:var(--acc)}.wtile.on{border-color:var(--gold)}
+ .wtile .s{font-weight:700;font-size:12px}.wtile .p{font-size:11px;font-variant-numeric:tabular-nums}
+ .wtile .c{font-size:10px}
 </style></head><body>
 <h1>Glaz <b>Manual Desk</b></h1> <span class="paper">PAPER · MONITOR + TRADE</span>
 
 <div class="strip" id="strip">loading…</div>
 
 <div class="grid">
+  <!-- WATCHLIST -->
+  <div class="card full"><h2>Watchlist · crypto stocks <span style="font-size:10px;color:var(--mut)">click to load chain</span></h2>
+    <div id="watch">loading…</div></div>
+
   <!-- POSITIONS -->
   <div class="card full"><h2>Positions
     <span><button class="mini sell" onclick="closeAll()">close all</button></span></h2>
@@ -178,7 +188,25 @@ async function submitSpread(){if(LEGS.length<2){$('#smsg').innerHTML='<span clas
  const r=await j('/api/order/multileg',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({legs:LEGS,qty:1,type:'market'})});
  $('#smsg').innerHTML=r.ok?`<span class="pos">✓ spread submitted — ${r.status}</span>`:`<span class="neg">✗ ${r.error}</span>`;refreshAll();}
 
-function refreshAll(){loadAccount();loadPositions();loadOrders();loadActs();}
+let UNIV=null;
+async function loadWatch(){
+ try{ if(!UNIV) UNIV=await j('/api/universe');
+   const q=await j('/api/watchlist'); const px={}; q.forEach(r=>px[r.symbol]=r);
+   const cur=($('#sym').value||'').trim().toUpperCase();
+   let html='';
+   for(const [grp,syms] of Object.entries(UNIV)){
+     html+=`<div class="wgroup"><div class="wglabel">${grp.toUpperCase()}</div><div class="wrow">`+
+      syms.map(sy=>{const r=px[sy]||{};const c=r.changepct;
+        return `<div class="wtile ${sy===cur?'on':''}" onclick="pickSym('${sy}')">
+          <div class="s">${sy}</div>
+          <div class="p">${r.price!=null?money(r.price):'—'}</div>
+          <div class="c ${cls(c||0)}">${c!=null?(c>0?'+':'')+c.toFixed(2)+'%':''}</div></div>`;}).join('')+
+      `</div></div>`;
+   }
+   $('#watch').innerHTML=html;
+ }catch(e){$('#watch').innerHTML=`<span class="neg">${e.message}</span>`;}}
+function pickSym(sy){$('#sym').value=sy;loadChain();loadWatch();}
+function refreshAll(){loadAccount();loadPositions();loadOrders();loadActs();loadWatch();}
 setOTab('open');refreshAll();
 setInterval(refreshAll,10000);
 </script></body></html>
