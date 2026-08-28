@@ -74,3 +74,17 @@ The gate being non-model is the point: **the LLM decides, code vetoes.**
 
 Keep the split by *responsibility*, not novelty: use a second model only where a
 cheaper/faster call genuinely fits. One good model beats two bolted together.
+
+
+### Locked-in split (implemented)
+
+| Concern | Model | Module |
+|---|---|---|
+| Trade decisions, sizing, structure | **Claude** (Anthropic API) | `agent/decide.py` |
+| Volatility-regime label (HIGH/NORMAL/LOW) | **Featherless** (`Qwen2.5-7B-Instruct`) | `agent/regime.py` |
+
+`regime.py` is a bounded classifier: it answers one question and returns a JSON
+label, nothing more. It has a **deterministic rule fallback**, so a Featherless
+outage or a bad response never blocks a trading cycle — the partner model is an
+enhancement, not a dependency. Claude consumes the regime label as one input and
+makes the actual call.

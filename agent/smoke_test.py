@@ -1,9 +1,10 @@
 """Run first. Confirms keys work, account is paper, and options are enabled."""
 from alpaca.trading.client import TradingClient
-from agent.config import API_KEY, SECRET_KEY, PAPER
+from agent.config import require_alpaca, PAPER
 
 def main() -> None:
-    client = TradingClient(API_KEY, SECRET_KEY, paper=PAPER)
+    api_key, secret_key = require_alpaca()
+    client = TradingClient(api_key, secret_key, paper=PAPER)
     acct = client.get_account()
 
     print(f"account id      {acct.id}")
