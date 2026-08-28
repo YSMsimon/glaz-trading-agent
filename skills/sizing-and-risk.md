@@ -19,6 +19,6 @@ definition of risk.
    it as a budget is how you blow up.
 
 ## Before every order
-Run: `uv run python -m agent.riskcheck --contracts N --price P --dte D
+LIMIT orders only on spreads (see entry-exit-rules). Run: `uv run python -m agent.riskcheck --contracts N --price P --dte D
 --defined true` (or the equivalent). If it returns warnings, revise — never
 override.
