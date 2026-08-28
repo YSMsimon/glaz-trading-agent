@@ -2,89 +2,106 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Glaz Manual Desk</title>
 <style>
- :root{--bg:#0b0f17;--panel:#141a24;--line:#232c3a;--ink:#e6ebf2;--mut:#8a95a8;
+ :root{--bg:#0a0e15;--panel:#131924;--line:#232c3a;--ink:#e6ebf2;--mut:#8a95a8;
    --red:#e5484d;--grn:#30a46c;--gold:#e8b93f;--acc:#4c7dff}
  *{box-sizing:border-box;margin:0;padding:0}
- body{background:var(--bg);color:var(--ink);font:13px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;padding:18px}
- h1{font-size:17px}h1 b{color:var(--gold)}
+ body{background:var(--bg);color:var(--ink);font:13px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;padding:14px}
+ h1{font-size:16px;display:inline}h1 b{color:var(--gold)}
  .paper{color:var(--gold);border:1px solid var(--gold);padding:1px 6px;border-radius:4px;font-size:10px}
- .sub{color:var(--mut);font-size:12px;margin:2px 0 16px}
- .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
- @media(max-width:900px){.grid{grid-template-columns:1fr}}
- .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
- .card h2{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
- .full{grid-column:1/-1}
- .kv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line)}
- .kv:last-child{border:0}.kv .v{font-variant-numeric:tabular-nums;font-weight:600}
+ /* account strip */
+ .strip{display:flex;gap:22px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+   border-radius:9px;padding:11px 16px;margin:10px 0 12px}
+ .strip .m{display:flex;flex-direction:column}.strip .m .l{font-size:10px;color:var(--mut);letter-spacing:.06em}
+ .strip .m .v{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
  .pos{color:var(--grn)}.neg{color:var(--red)}
+ .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+ @media(max-width:960px){.grid{grid-template-columns:1fr}}
+ .card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px}
+ .card h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:9px;display:flex;justify-content:space-between;align-items:center}
+ .full{grid-column:1/-1}
  table{width:100%;border-collapse:collapse;font-size:12px}
  th,td{text-align:right;padding:5px 7px;border-bottom:1px solid var(--line);white-space:nowrap}
  th:first-child,td:first-child{text-align:left}
  th{color:var(--mut);font-weight:500;font-size:10px;position:sticky;top:0;background:var(--panel)}
- tbody tr{cursor:pointer}tbody tr:hover{background:#1b2330}tr.sel{background:#20304d}
- input,select,button{font:inherit;color:var(--ink);background:#0e141d;border:1px solid var(--line);border-radius:7px;padding:7px 9px}
+ tbody tr{cursor:pointer}tbody tr:hover{background:#1b2330}tr.sel{background:#22314f}
+ input,select,button{font:inherit;color:var(--ink);background:#0d1420;border:1px solid var(--line);border-radius:6px;padding:6px 8px}
  button{cursor:pointer;background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
  button.ghost{background:transparent;color:var(--ink)}button.mini{padding:3px 8px;font-size:11px}
- button.sell{background:var(--red);border-color:var(--red)}
- .row{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:10px}
+ button.sell{background:var(--red);border-color:var(--red)}button.g{background:var(--grn);border-color:var(--grn)}
+ .row{display:flex;gap:7px;flex-wrap:wrap;align-items:end}
  .fld{display:flex;flex-direction:column;gap:3px}.fld label{font-size:10px;color:var(--mut)}
- .fld input,.fld select{width:110px}
- #msg{margin-top:8px;font-size:12px;min-height:16px}
+ .fld input,.fld select{width:96px}.fld.sm input{width:66px}
+ #msg,#smsg{margin-top:8px;font-size:12px;min-height:15px}
  .tag{display:inline-block;padding:1px 7px;border-radius:4px;background:#1b2330;color:var(--mut);font-size:11px}
- canvas{width:100%;height:150px;background:#0e141d;border:1px solid var(--line);border-radius:8px}
- .legs .leg{display:flex;gap:6px;align-items:center;margin-bottom:5px;font-size:12px}
- .chip{background:#1b2330;padding:2px 7px;border-radius:5px}
- .warn{color:var(--gold);font-size:11px}
- .scroll{max-height:300px;overflow:auto}
+ .scroll{max-height:260px;overflow:auto}
+ .chip{background:#1b2330;padding:2px 7px;border-radius:5px;font-size:11px}
+ .warn{color:var(--gold);font-size:11px;margin-top:3px}.tabs button{margin-left:4px}
+ .side-buy{color:var(--grn)}.side-sell{color:var(--red)}
 </style></head><body>
-<h1>Glaz <b>Manual Desk</b> <span class="paper">PAPER</span></h1>
-<div class="sub">Human-driven options trading on Alpaca. Search · preview · submit · track. No agent.</div>
+<h1>Glaz <b>Manual Desk</b></h1> <span class="paper">PAPER · MONITOR + TRADE</span>
+
+<div class="strip" id="strip">loading…</div>
 
 <div class="grid">
-  <div class="card"><h2>Account</h2><div id="acct">loading…</div>
-    <canvas id="underlying" title="underlying price"></canvas>
-    <div id="ucap" class="sub" style="margin:6px 0 0">underlying: —</div></div>
-  <div class="card"><h2>Positions</h2><div id="pos" class="scroll">loading…</div></div>
+  <!-- POSITIONS -->
+  <div class="card full"><h2>Positions
+    <span><button class="mini sell" onclick="closeAll()">close all</button></span></h2>
+    <div id="pos" class="scroll">loading…</div></div>
 
-  <div class="card full"><h2>Option Chain — search</h2>
-    <div class="row">
+  <!-- CHAIN SEARCH -->
+  <div class="card full"><h2>Option Chain</h2>
+    <div class="row" style="margin-bottom:9px">
       <div class="fld"><label>Underlying</label><input id="sym" value="MSTR"></div>
       <div class="fld"><label>Type</label><select id="kind"><option value="call">Calls</option><option value="put">Puts</option></select></div>
-      <div class="fld"><label>DTE min</label><input id="dmin" type="number" value="7"></div>
-      <div class="fld"><label>DTE max</label><input id="dmax" type="number" value="45"></div>
-      <div class="fld"><label>Min OI</label><input id="minoi" type="number" value="0"></div>
-      <div class="fld"><label>|Δ| ≥</label><input id="mindelta" type="number" step="0.05" value="0.05"></div>
-      <button class="ghost" onclick="loadChain()">Search chain</button>
+      <div class="fld sm"><label>DTE min</label><input id="dmin" type="number" value="7"></div>
+      <div class="fld sm"><label>DTE max</label><input id="dmax" type="number" value="45"></div>
+      <div class="fld sm"><label>Min OI</label><input id="minoi" type="number" value="0"></div>
+      <div class="fld sm"><label>|Δ| ≥</label><input id="mindelta" type="number" step="0.05" value="0.05"></div>
+      <button class="ghost" onclick="loadChain()">Search</button>
       <span class="tag">MSTR COIN CRCL MARA RIOT IBIT</span>
     </div>
     <div id="chain" class="scroll"></div>
   </div>
 
+  <!-- ORDER TICKET (advanced) -->
   <div class="card"><h2>Order Ticket</h2>
-    <div class="row">
+    <div class="row" style="margin-bottom:7px">
       <div class="fld" style="flex:1"><label>Contract (click chain)</label><input id="oc" style="width:100%" placeholder="click a row"></div>
-      <div class="fld"><label>Side</label><select id="side"><option>buy</option><option>sell</option></select></div>
-      <div class="fld"><label>Qty</label><input id="qty" type="number" value="1" min="1" style="width:70px"></div>
-      <div class="fld"><label>Type</label><select id="otype" onchange="tl()"><option value="market">market</option><option value="limit">limit</option></select></div>
-      <div class="fld" id="lpwrap" style="display:none"><label>Limit $</label><input id="lp" type="number" step="0.01" style="width:80px"></div>
     </div>
-    <div class="row">
-      <button class="ghost mini" onclick="addLeg()">+ add as spread leg</button>
-      <button id="submit" onclick="submitOrder()">Place order</button>
+    <div class="row" style="margin-bottom:7px">
+      <div class="fld sm"><label>Side</label><select id="side"><option>buy</option><option>sell</option></select></div>
+      <div class="fld sm"><label>Qty</label><input id="qty" type="number" value="1" min="1"></div>
+      <div class="fld"><label>Type</label><select id="otype" onchange="tf()">
+        <option value="market">market</option><option value="limit">limit</option>
+        <option value="stop">stop</option><option value="stop_limit">stop-limit</option></select></div>
+      <div class="fld sm" id="lw" style="display:none"><label>Limit $</label><input id="lp" type="number" step="0.01"></div>
+      <div class="fld sm" id="sw" style="display:none"><label>Stop $</label><input id="sp" type="number" step="0.01"></div>
+      <div class="fld sm"><label>TIF</label><select id="tif"><option>day</option><option>gtc</option></select></div>
     </div>
+    <div class="row"><button class="g" onclick="$('#side').value='buy';submitOrder()">Buy</button>
+      <button class="sell" onclick="$('#side').value='sell';submitOrder()">Sell</button>
+      <button class="ghost mini" onclick="addLeg()">+ spread leg</button></div>
     <div id="msg"></div>
   </div>
 
-  <div class="card"><h2>Spread Builder + Preview</h2>
-    <div id="legs" class="legs"><span class="sub">Add legs from the ticket to build a spread.</span></div>
-    <div class="row"><button class="ghost mini" onclick="doPreview()">Preview P/L</button>
+  <!-- SPREAD BUILDER -->
+  <div class="card"><h2>Spread Builder</h2>
+    <div id="legs" style="min-height:34px"><span style="color:var(--mut)">Add legs from the ticket.</span></div>
+    <div class="row" style="margin-top:6px"><button class="ghost mini" onclick="doPreview()">Preview</button>
       <button class="ghost mini" onclick="clearLegs()">clear</button>
       <button onclick="submitSpread()">Submit spread</button></div>
-    <canvas id="payoff" title="payoff at expiry"></canvas>
-    <div id="pv" class="sub" style="margin-top:6px"></div>
+    <div id="smsg"></div><div id="pv" style="color:var(--mut);font-size:12px;margin-top:5px"></div>
   </div>
 
-  <div class="card full"><h2>Open Orders</h2><div id="orders" class="scroll">loading…</div></div>
+  <!-- ORDERS -->
+  <div class="card"><h2>Orders <span class="tabs">
+    <button class="mini ghost" id="tOpen" onclick="setOTab('open')">open</button>
+    <button class="mini ghost" id="tAll" onclick="setOTab('all')">all</button></span></h2>
+    <div id="orders" class="scroll">loading…</div></div>
+
+  <!-- ACTIVITIES -->
+  <div class="card"><h2>Recent Fills</h2>
+    <div id="acts" class="scroll">loading…</div></div>
 </div>
 
 <script>
@@ -92,97 +109,76 @@ const $=s=>document.querySelector(s);
 const money=n=>(n<0?"-$":"$")+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:2});
 const cls=n=>n>0?"pos":n<0?"neg":"";
 async function j(u,o){const r=await fetch(u,o);const d=await r.json().catch(()=>({}));if(!r.ok&&!o)throw new Error(d.error||JSON.stringify(d));return d;}
-
-let CHAIN=[], LEGS=[];
+let CHAIN=[],LEGS=[],OTAB='open';
 
 async function loadAccount(){try{const a=await j('/api/account');
-  $('#acct').innerHTML=`
-   <div class="kv"><span>Account</span><span class="v">${a.id}</span></div>
-   <div class="kv"><span>Equity</span><span class="v">${money(a.equity)}</span></div>
-   <div class="kv"><span>Daily P&L</span><span class="v ${cls(a.daily_pl)}">${money(a.daily_pl)}</span></div>
-   <div class="kv"><span>Options BP</span><span class="v">${money(a.options_bp)}</span></div>
-   <div class="kv"><span>Options level</span><span class="v">${a.options_level??'—'}</span></div>`;
- }catch(e){$('#acct').innerHTML=`<span class="neg">${e.message}</span>`;}}
+ $('#strip').innerHTML=`
+  <div class="m"><span class="l">ACCOUNT</span><span class="v" style="font-size:12px">${a.number||a.id}</span></div>
+  <div class="m"><span class="l">EQUITY</span><span class="v">${money(a.equity)}</span></div>
+  <div class="m"><span class="l">DAILY P&L</span><span class="v ${cls(a.daily_pl)}">${money(a.daily_pl)}</span></div>
+  <div class="m"><span class="l">CASH</span><span class="v">${money(a.cash)}</span></div>
+  <div class="m"><span class="l">OPTIONS BP</span><span class="v">${money(a.options_bp)}</span></div>
+  <div class="m"><span class="l">LEVEL</span><span class="v">${a.options_level??'—'}</span></div>`;
+ }catch(e){$('#strip').innerHTML=`<span class="neg">${e.message}</span>`;}}
 
 async function loadPositions(){try{const p=await j('/api/positions');
-  $('#pos').innerHTML=p.length?`<table><thead><tr><th>Symbol</th><th>Qty</th><th>Value</th><th>P&L</th></tr></thead><tbody>`+
-   p.map(r=>`<tr><td>${r.symbol}</td><td>${r.qty}</td><td>${money(r.market_value)}</td><td class="${cls(r.unrealized_pl)}">${money(r.unrealized_pl)}</td></tr>`).join('')+`</tbody></table>`
-   :'<span class="sub">No open positions.</span>';
+ $('#pos').innerHTML=p.length?`<table><thead><tr><th>Position</th><th>Side</th><th>Qty</th><th>Avg</th><th>Last</th><th>Value</th><th>Unreal P&L</th><th>%</th><th></th></tr></thead><tbody>`+
+  p.map(r=>`<tr><td>${r.label}</td><td class="side-${r.side}">${r.side}</td><td>${r.qty}</td><td>${money(r.avg_price)}</td><td>${money(r.current)}</td><td>${money(r.market_value)}</td><td class="${cls(r.unrealized_pl)}">${money(r.unrealized_pl)}</td><td class="${cls(r.unrealized_plpc)}">${r.unrealized_plpc.toFixed(1)}%</td><td><button class="mini sell" onclick="closePos('${r.symbol}')">close</button></td></tr>`).join('')+`</tbody></table>`
+  :'<span style="color:var(--mut)">No open positions.</span>';
  }catch(e){$('#pos').innerHTML=`<span class="neg">${e.message}</span>`;}}
 
-async function loadOrders(){try{const o=await j('/api/orders?status=open');
-  $('#orders').innerHTML=o.length?`<table><thead><tr><th>Symbol</th><th>Side</th><th>Qty</th><th>Type</th><th>Status</th><th></th></tr></thead><tbody>`+
-   o.map(r=>`<tr><td>${r.symbol}</td><td>${r.side}</td><td>${r.qty}</td><td>${r.type}</td><td>${r.status}</td><td><button class="mini sell" onclick="cancelOrder('${r.id}')">cancel</button></td></tr>`).join('')+`</tbody></table>`
-   :'<span class="sub">No open orders.</span>';
- }catch(e){$('#orders').innerHTML=`<span class="neg">${e.message}</span>`;}}
+async function closePos(s){if(!confirm('Close '+s+'?'))return;const r=await j('/api/positions/close',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol:s})});refreshAll();}
+async function closeAll(){if(!confirm('Close ALL positions?'))return;await j('/api/positions/close_all',{method:'POST'});refreshAll();}
 
+function setOTab(t){OTAB=t;$('#tOpen').style.opacity=t=='open'?1:.5;$('#tAll').style.opacity=t=='all'?1:.5;loadOrders();}
+async function loadOrders(){try{const o=await j('/api/orders?status='+OTAB);
+ $('#orders').innerHTML=o.length?`<table><thead><tr><th>Contract</th><th>Side</th><th>Qty</th><th>Type</th><th>Lmt/Stp</th><th>Status</th><th>Filled</th><th></th></tr></thead><tbody>`+
+  o.map(r=>`<tr><td>${r.label}</td><td class="side-${r.side}">${r.side}</td><td>${r.qty}</td><td>${r.type}${r.tif=='gtc'?' gtc':''}</td>
+   <td>${r.limit?money(r.limit):''}${r.stop?' / '+money(r.stop):''}${!r.limit&&!r.stop?'—':''}</td>
+   <td>${r.status}</td><td>${r.filled_qty}${r.filled_avg?' @'+money(r.filled_avg):''}</td>
+   <td>${r.cancellable?`<button class="mini sell" onclick="cancelOrder('${r.id}')">cancel</button>`:''}</td></tr>`).join('')+`</tbody></table>`
+  :'<span style="color:var(--mut)">No orders.</span>';
+ }catch(e){$('#orders').innerHTML=`<span class="neg">${e.message}</span>`;}}
 async function cancelOrder(id){await j('/api/orders/'+id+'/cancel',{method:'POST'});loadOrders();}
 
-async function loadChain(){
-  const sym=$('#sym').value.trim().toUpperCase();
-  $('#chain').innerHTML='searching…';drawUnderlying(sym);
-  try{const rows=await j(`/api/chain?symbol=${sym}&kind=${$('#kind').value}&dte_min=${$('#dmin').value}&dte_max=${$('#dmax').value}`);
-   const moi=+$('#minoi').value, md=+$('#mindelta').value;
-   CHAIN=rows.filter(r=>(r.oi??0)>=moi && Math.abs(r.delta??0)>=md);
-   if(!CHAIN.length){$('#chain').innerHTML='<span class="sub">No contracts match. Off-hours may hide greeks/IV.</span>';return;}
-   $('#chain').innerHTML=`<table><thead><tr><th>Contract</th><th>Strike</th><th>Exp</th><th>DTE</th><th>Bid</th><th>Ask</th><th>IV</th><th>Δ</th><th>Θ</th><th>OI</th></tr></thead><tbody>`+
-    CHAIN.map((r,i)=>`<tr onclick="pick(${i})"><td>${r.symbol}</td><td>${r.strike}</td><td>${r.expiry.slice(5)}</td><td>${r.dte}</td>
-     <td>${r.bid??'—'}</td><td>${r.ask??'—'}</td><td>${r.iv??'—'}</td><td>${r.delta??'—'}</td><td>${r.theta??'—'}</td><td>${r.oi??'—'}</td></tr>`).join('')+`</tbody></table>`;
-  }catch(e){$('#chain').innerHTML=`<span class="neg">${e.message}</span>`;}}
+async function loadActs(){try{const a=await j('/api/activities');
+ $('#acts').innerHTML=a.length?`<table><thead><tr><th>Contract</th><th>Side</th><th>Qty</th><th>Fill</th><th>Value</th><th>When</th></tr></thead><tbody>`+
+  a.map(r=>`<tr><td>${r.label||'—'}</td><td class="side-${(r.side||'').toLowerCase()}">${r.side||''}</td><td>${r.qty??''}</td><td>${r.price!=null?money(r.price):''}</td><td>${r.value!=null?money(r.value):''}</td><td style="color:var(--mut)">${(r.date||'').slice(5,16)}</td></tr>`).join('')+`</tbody></table>`
+  :'<span style="color:var(--mut)">No activity yet.</span>';
+ }catch(e){$('#acts').innerHTML=`<span class="neg">${e.message}</span>`;}}
 
-function pick(i){document.querySelectorAll('#chain tr').forEach(t=>t.classList.remove('sel'));
- document.querySelectorAll('#chain tbody tr')[i].classList.add('sel');
- const r=CHAIN[i];$('#oc').value=r.symbol;$('#oc').dataset.i=i;}
+async function loadChain(){const sym=$('#sym').value.trim().toUpperCase();$('#chain').innerHTML='searching…';
+ try{const rows=await j(`/api/chain?symbol=${sym}&kind=${$('#kind').value}&dte_min=${$('#dmin').value}&dte_max=${$('#dmax').value}`);
+  const moi=+$('#minoi').value,md=+$('#mindelta').value;
+  CHAIN=rows.filter(r=>(r.oi??0)>=moi&&Math.abs(r.delta??0)>=md);
+  if(!CHAIN.length){$('#chain').innerHTML='<span style="color:var(--mut)">No matches. Off-hours may hide greeks.</span>';return;}
+  $('#chain').innerHTML=`<table><thead><tr><th>Contract</th><th>Strike</th><th>Exp</th><th>DTE</th><th>Bid</th><th>Ask</th><th>IV</th><th>Δ</th><th>Θ</th><th>Γ</th><th>OI</th></tr></thead><tbody>`+
+   CHAIN.map((r,i)=>`<tr onclick="pick(${i})"><td>${r.symbol}</td><td>${r.strike}</td><td>${r.expiry.slice(5)}</td><td>${r.dte}</td><td>${r.bid??'—'}</td><td>${r.ask??'—'}</td><td>${r.iv??'—'}</td><td>${r.delta??'—'}</td><td>${r.theta??'—'}</td><td>${r.gamma??'—'}</td><td>${r.oi??'—'}</td></tr>`).join('')+`</tbody></table>`;
+ }catch(e){$('#chain').innerHTML=`<span class="neg">${e.message}</span>`;}}
+function pick(i){document.querySelectorAll('#chain tbody tr').forEach(t=>t.classList.remove('sel'));document.querySelectorAll('#chain tbody tr')[i].classList.add('sel');$('#oc').value=CHAIN[i].symbol;$('#oc').dataset.i=i;}
 
-function tl(){$('#lpwrap').style.display=$('#otype').value==='limit'?'flex':'none';}
+function tf(){const t=$('#otype').value;$('#lw').style.display=(t=='limit'||t=='stop_limit')?'flex':'none';$('#sw').style.display=(t=='stop'||t=='stop_limit')?'flex':'none';}
 
-async function submitOrder(){
-  const b={symbol:$('#oc').value.trim(),side:$('#side').value,qty:+$('#qty').value,type:$('#otype').value,limit_price:$('#lp').value?+$('#lp').value:null};
-  if(!b.symbol){$('#msg').innerHTML='<span class="neg">Pick a contract first.</span>';return;}
-  $('#submit').disabled=true;$('#msg').textContent='placing…';
-  const r=await j('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-  $('#submit').disabled=false;
-  $('#msg').innerHTML=r.ok?`<span class="pos">✓ ${r.side} ${r.qty} ${r.symbol} — ${r.status}</span>`:`<span class="neg">✗ ${r.error}</span>`;
-  loadAccount();loadPositions();loadOrders();}
+async function submitOrder(){const b={symbol:$('#oc').value.trim(),side:$('#side').value,qty:+$('#qty').value,type:$('#otype').value,limit_price:$('#lp').value?+$('#lp').value:null,stop_price:$('#sp').value?+$('#sp').value:null,tif:$('#tif').value};
+ if(!b.symbol){$('#msg').innerHTML='<span class="neg">Pick a contract first.</span>';return;}
+ $('#msg').textContent='placing…';
+ const r=await j('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+ $('#msg').innerHTML=r.ok?`<span class="pos">✓ ${b.side} ${r.qty} ${r.symbol} — ${r.status}</span>`:`<span class="neg">✗ ${r.error}</span>`;
+ refreshAll();}
 
 function addLeg(){const i=$('#oc').dataset.i;if(i===undefined){$('#msg').innerHTML='<span class="neg">Pick a chain row first.</span>';return;}
- const r=CHAIN[i];const mid=r.bid&&r.ask?(r.bid+r.ask)/2:(r.ask||r.bid||0);
- LEGS.push({side:$('#side').value,kind:$('#kind').value,strike:r.strike,price:+mid.toFixed(2),qty:+$('#qty').value,symbol:r.symbol});
- renderLegs();}
-function clearLegs(){LEGS=[];renderLegs();$('#pv').textContent='';const c=$('#payoff');c.getContext('2d').clearRect(0,0,c.width,c.height);}
-function renderLegs(){$('#legs').innerHTML=LEGS.length?LEGS.map((l,i)=>`<div class="leg"><span class="chip">${l.side} ${l.qty} ${l.kind} ${l.strike} @${l.price}</span><button class="mini sell" onclick="LEGS.splice(${i},1);renderLegs()">×</button></div>`).join(''):'<span class="sub">Add legs from the ticket to build a spread.</span>';}
-
-async function doPreview(){if(!LEGS.length)return;
- const r=await j('/api/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({legs:LEGS,dte:21})});
- const w=r.warnings.length?`<div class="warn">⚠ ${r.warnings.join(' · ')}</div>`:'<div class="pos">✓ within risk gates</div>';
- $('#pv').innerHTML=`net ${r.net>=0?'credit':'debit'} ${money(Math.abs(r.net))} · max profit ${r.max_profit==null?'∞':money(r.max_profit)} · max loss ${r.max_loss==null?'∞':money(r.max_loss)} · BE ${r.breakevens.join(', ')||'—'}${w}`;
- drawPayoff();}
-
-async function submitSpread(){if(LEGS.length<2){$('#pv').innerHTML='<span class="neg">Need ≥2 legs.</span>';return;}
+ const r=CHAIN[i],mid=r.bid&&r.ask?(r.bid+r.ask)/2:(r.ask||r.bid||0);
+ LEGS.push({side:$('#side').value,kind:$('#kind').value,strike:r.strike,price:+mid.toFixed(2),qty:+$('#qty').value,symbol:r.symbol});renderLegs();}
+function renderLegs(){$('#legs').innerHTML=LEGS.length?LEGS.map((l,i)=>`<span class="chip side-${l.side}" style="margin:2px">${l.side} ${l.qty} ${l.kind} ${l.strike} @${l.price} <b onclick="LEGS.splice(${i},1);renderLegs()" style="cursor:pointer">×</b></span>`).join(''):'<span style="color:var(--mut)">Add legs from the ticket.</span>';}
+function clearLegs(){LEGS=[];renderLegs();$('#pv').textContent='';$('#smsg').textContent='';}
+async function doPreview(){if(!LEGS.length)return;const r=await j('/api/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({legs:LEGS,dte:21})});
+ const w=r.warnings.length?`<div class="warn">⚠ ${r.warnings.join(' · ')}</div>`:'<div class="pos" style="font-size:11px">✓ within risk gates</div>';
+ $('#pv').innerHTML=`net ${r.net>=0?'credit':'debit'} ${money(Math.abs(r.net))} · max profit ${r.max_profit==null?'∞':money(r.max_profit)} · max loss ${r.max_loss==null?'∞':money(r.max_loss)} · BE ${r.breakevens.join(', ')||'—'}${w}`;}
+async function submitSpread(){if(LEGS.length<2){$('#smsg').innerHTML='<span class="neg">Need ≥2 legs.</span>';return;}
  const r=await j('/api/order/multileg',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({legs:LEGS,qty:1,type:'market'})});
- $('#pv').innerHTML=r.ok?`<span class="pos">✓ spread submitted — ${r.status}</span>`:`<span class="neg">✗ ${r.error}</span>`;
- loadAccount();loadPositions();loadOrders();}
+ $('#smsg').innerHTML=r.ok?`<span class="pos">✓ spread submitted — ${r.status}</span>`:`<span class="neg">✗ ${r.error}</span>`;refreshAll();}
 
-// ---- charts (canvas, no libs) ----
-function drawPayoff(){const c=$('#payoff'),x=c.getContext('2d');c.width=c.clientWidth;c.height=150;
- x.clearRect(0,0,c.width,c.height);if(!LEGS.length)return;
- const ks=LEGS.map(l=>l.strike),lo=Math.min(...ks)*0.8,hi=Math.max(...ks)*1.2,N=120;
- const val=s=>LEGS.reduce((t,l)=>{const intr=l.kind==='call'?Math.max(s-l.strike,0):Math.max(l.strike-s,0);const sign=l.side==='buy'?1:-1;return t+sign*(intr-l.price)*100*l.qty;},0);
- let pts=[],mn=1e9,mx=-1e9;for(let i=0;i<=N;i++){const s=lo+(hi-lo)*i/N,v=val(s);pts.push([s,v]);mn=Math.min(mn,v);mx=Math.max(mx,v);}
- const px=s=>(s-lo)/(hi-lo)*c.width,py=v=>c.height-(v-mn)/((mx-mn)||1)*(c.height-16)-8;
- x.strokeStyle='#2a3547';x.beginPath();x.moveTo(0,py(0));x.lineTo(c.width,py(0));x.stroke();
- x.strokeStyle='#4c7dff';x.lineWidth=2;x.beginPath();pts.forEach((p,i)=>i?x.lineTo(px(p[0]),py(p[1])):x.moveTo(px(p[0]),py(p[1])));x.stroke();
- x.fillStyle='#8a95a8';x.font='10px sans-serif';x.fillText('$'+lo.toFixed(0),2,c.height-2);x.fillText('$'+hi.toFixed(0),c.width-42,c.height-2);}
-
-async function drawUnderlying(sym){try{const b=await j('/api/bars?symbol='+sym+'&days=60');
- const c=$('#underlying'),x=c.getContext('2d');c.width=c.clientWidth;c.height=150;x.clearRect(0,0,c.width,c.height);
- if(!b.length){$('#ucap').textContent='underlying: no data';return;}
- const cs=b.map(d=>d.c),mn=Math.min(...cs),mx=Math.max(...cs);
- const px=i=>i/(b.length-1)*c.width,py=v=>c.height-(v-mn)/((mx-mn)||1)*(c.height-16)-8;
- x.strokeStyle='#30a46c';x.lineWidth=2;x.beginPath();b.forEach((d,i)=>i?x.lineTo(px(i),py(d.c)):x.moveTo(px(i),py(d.c)));x.stroke();
- $('#ucap').textContent=`${sym}  ${money(cs[cs.length-1])}  (60d ${money(mn)}–${money(mx)})`;
- }catch(e){$('#ucap').textContent='underlying: '+e.message;}}
-
-loadAccount();loadPositions();loadOrders();drawUnderlying('MSTR');
-setInterval(()=>{loadAccount();loadPositions();loadOrders();},15000);
+function refreshAll(){loadAccount();loadPositions();loadOrders();loadActs();}
+setOTab('open');refreshAll();
+setInterval(refreshAll,10000);
 </script></body></html>
